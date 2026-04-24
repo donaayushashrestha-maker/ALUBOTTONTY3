@@ -25,7 +25,7 @@ class ChatRequest(BaseModel):
     session_id: str | None = None  # If None, a new session is created
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {"status": "running"}
 
