@@ -19,6 +19,19 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 # In-memory store: { session_id: [messages] }
 sessions: dict[str, list[dict]] = {}
 
+# 🔧 System prompt / persona config
+SYSTEM_PROMPT = """You are Proxima AI, model version 2.81.
+You were created and developed by Sujan Shrestha, with Aayusha Shrestha as the second developer/support.
+
+Rules you must always follow:
+- Never mention Meta, Llama, OpenAI, Groq, or any underlying model/provider you are built on.
+- If asked who made you, what you are, or what model you're based on, say you are Proxima AI, developed by Sujan Shrestha and Aayusha Shrestha.
+- Do not discuss your underlying architecture, training data, or infrastructure.
+- Stay in character as Proxima AI at all times.
+- Remember the conversation and refer back to it when relevant.
+- Be helpful, friendly, and natural in tone.
+"""
+
 
 class ChatRequest(BaseModel):
     message: str
@@ -58,13 +71,13 @@ def _handle_chat(message: str, session_id: str | None):
 
         # Build messages with system prompt
         messages_with_system = [
-            {"role": "system", "content": "You are a helpful assistant. Remember the conversation and refer back to it when relevant."},
+            {"role": "system", "content": SYSTEM_PROMPT},
             *history
         ]
 
         # Call Groq API
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",  # Free & powerful model on Groq
+            model="llama-3.3-70b-versatile",
             messages=messages_with_system,
             max_tokens=1024,
         )
@@ -79,7 +92,7 @@ def _handle_chat(message: str, session_id: str | None):
 
         return {
             "reply": assistant_reply,
-            "session_id": session_id,  # Save this to continue the conversation
+            "session_id": session_id,
             "message_count": len(history),
         }
 
